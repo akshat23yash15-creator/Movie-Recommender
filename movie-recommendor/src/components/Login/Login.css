@@ -1,0 +1,138 @@
+/* MODAL BACKGROUND */
+.login-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+/* LOGIN CARD */
+.login-card {
+  position: relative;
+  width: 380px;
+  background: #111;
+  border-radius: 16px;
+  padding: 2.5rem;
+  box-shadow: 0 0 25px rgba(79, 172, 254, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: white;
+  animation: slideUp 0.4s ease-in-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* CLOSE BUTTON */
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #fff;
+}
+
+/* TITLE + SUBTITLE */
+.modal-title {
+  text-align: center;
+  font-size: 1.8rem;
+  background: linear-gradient(90deg, #4facfe, #9b4dff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.modal-subtitle {
+  text-align: center;
+  color: #bbb;
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+}
+
+/* FORM */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-bottom: 0.3rem;
+  display: block;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: white;
+  font-size: 1rem;
+  outline: none;
+  transition: box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+  box-shadow: 0 0 8px rgba(79, 172, 254, 0.7);
+}
+
+/* LOGIN BUTTON */
+.login-btn {
+  background: linear-gradient(90deg, #4facfe, #9b4dff);
+  border: none;
+  border-radius: 8px;
+  padding: 10px;
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(79, 172, 254, 0.8);
+}
+
+/* SIGNUP TEXT */
+.signup-text {
+  text-align: center;
+  color: #ccc;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.signup-text span {
+  color: #4facfe;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.signup-text span:hover {
+  color: #9b4dff;
+}
