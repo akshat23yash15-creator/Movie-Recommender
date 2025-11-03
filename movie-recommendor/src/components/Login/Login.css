@@ -1,4 +1,4 @@
-/* MODAL BACKGROUND */
+/* === OVERLAY BACKGROUND === */
 .login-modal {
   position: fixed;
   top: 0;
@@ -13,7 +13,7 @@
   z-index: 200;
 }
 
-/* LOGIN CARD */
+/* === LOGIN / RESET CARD === */
 .login-card {
   position: relative;
   width: 380px;
@@ -37,7 +37,7 @@
   }
 }
 
-/* CLOSE BUTTON */
+/* === CLOSE BUTTON === */
 .close-btn {
   position: absolute;
   top: 12px;
@@ -54,7 +54,7 @@
   color: #fff;
 }
 
-/* TITLE + SUBTITLE */
+/* === TITLES === */
 .modal-title {
   text-align: center;
   font-size: 1.8rem;
@@ -71,7 +71,7 @@
   margin-bottom: 2rem;
 }
 
-/* FORM */
+/* === FORM === */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -101,7 +101,7 @@
   box-shadow: 0 0 8px rgba(79, 172, 254, 0.7);
 }
 
-/* LOGIN BUTTON */
+/* === BUTTONS === */
 .login-btn {
   background: linear-gradient(90deg, #4facfe, #9b4dff);
   border: none;
@@ -119,7 +119,40 @@
   box-shadow: 0 0 15px rgba(79, 172, 254, 0.8);
 }
 
-/* SIGNUP TEXT */
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* === FORGOT PASSWORD LINK === */
+.forgot-link {
+  text-align: right;
+  color: #4facfe;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.forgot-link:hover {
+  color: #9b4dff;
+}
+
+/* === BACK LINK === */
+.back-link {
+  text-align: center;
+  color: #4facfe;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  transition: color 0.3s ease;
+}
+
+.back-link:hover {
+  color: #9b4dff;
+}
+
+/* === SIGNUP TEXT === */
 .signup-text {
   text-align: center;
   color: #ccc;
@@ -135,4 +168,16 @@
 
 .signup-text span:hover {
   color: #9b4dff;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 420px) {
+  .login-card {
+    width: 90%;
+    padding: 2rem 1.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
 }

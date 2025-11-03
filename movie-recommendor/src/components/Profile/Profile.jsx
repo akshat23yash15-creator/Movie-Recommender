@@ -1,23 +1,32 @@
+// src/components/Profile/Profile.jsx
 import React, { useEffect, useState } from "react";
 import "./Profile.css";
+import { getUserData, logoutUser } from "../../api/authService";
 
 const Profile = ({ onClose }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Simulate fetching user data (replace with API later)
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser);
-    } else {
-      
-      setUser({
-        name: "Guest User",
-        email: "guest@roovie.com",
-        joined: "01 Nov 2025",
-      });
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setUser({ name: "Guest", email: "guest@roovie.com" });
+      return;
     }
+
+    getUserData(token)
+      .then((data) => setUser(data))
+      .catch(() => {
+        setUser({ name: "Guest", email: "guest@roovie.com" });
+      });
   }, []);
+
+  const handleLogout = async () => {
+    const token = localStorage.getItem("token");
+    if (token) await logoutUser(token);
+    localStorage.clear();
+    onClose();
+  };
 
   return (
     <div className="profile-overlay">
@@ -40,20 +49,9 @@ const Profile = ({ onClose }) => {
             <label>Email:</label>
             <p>{user?.email}</p>
           </div>
-
-          <div className="profile-field">
-            <label>Joined On:</label>
-            <p>{user?.joined}</p>
-          </div>
         </div>
 
-        <button
-          className="logout-btn"
-          onClick={() => {
-            localStorage.removeItem("user");
-            onClose();
-          }}
-        >
+        <button className="logout-btn" onClick={handleLogout}>
           Log Out
         </button>
       </div>

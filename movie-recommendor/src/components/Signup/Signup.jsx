@@ -2,71 +2,124 @@ import React, { useState } from "react";
 import "./Signup.css";
 
 const Signup = ({ onClose }) => {
-  const [form, setForm] = useState({
+  const [step, setStep] = useState("signup"); // "signup" | "verify"
+  const [signupData, setSignupData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const [otp, setOtp] = useState("");
 
-  const handleSubmit = (e) => {
+  // 🧩 Handle Signup
+  const handleSignup = (e) => {
     e.preventDefault();
-    if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
+    if (signupData.password !== signupData.confirmPassword) {
+      alert("Passwords do not match!");
       return;
     }
-    console.log("Signup:", form);
+
+    console.log("📝 Sending signup request for:", signupData);
+
+    // TODO: integrate backend signup API here
+    // Example: await axios.post("/auth/signup", signupData);
+
+    alert("✅ Signup request successful! OTP sent to your email.");
+    setStep("verify");
+  };
+
+  // 🧩 Handle OTP Verification
+  const handleVerifyOtp = (e) => {
+    e.preventDefault();
+    console.log("🔍 Verifying OTP:", otp);
+
+    // TODO: integrate /auth/verify-otp API here
+    alert("✅ OTP verified! Account successfully created.");
+
+    setStep("signup");
+    setSignupData({ name: "", email: "", password: "", confirmPassword: "" });
+    setOtp("");
     onClose();
   };
 
   return (
     <div className="modal-overlay">
-      <div className="modal">
-        <button className="close-btn" onClick={onClose}>
-          ✕
-        </button>
-        <h2 className="modal-title">Create Account</h2>
-        <p className="modal-subtitle">Join Roovie and explore amazing movies</p>
+      <div className="signup-modal">
+        <button className="close-btn" onClick={onClose}>✖</button>
 
-        <form onSubmit={handleSubmit}>
-          <label>Full Name</label>
-          <input
-            type="text"
-            placeholder="Enter your name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
+        {/* 🔹 SIGNUP FORM */}
+        {step === "signup" && (
+          <>
+            <h2>Create Account</h2>
+            <form onSubmit={handleSignup}>
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={signupData.name}
+                onChange={(e) =>
+                  setSignupData({ ...signupData, name: e.target.value })
+                }
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={signupData.email}
+                onChange={(e) =>
+                  setSignupData({ ...signupData, email: e.target.value })
+                }
+                required
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={signupData.password}
+                onChange={(e) =>
+                  setSignupData({ ...signupData, password: e.target.value })
+                }
+                required
+              />
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                value={signupData.confirmPassword}
+                onChange={(e) =>
+                  setSignupData({
+                    ...signupData,
+                    confirmPassword: e.target.value,
+                  })
+                }
+                required
+              />
 
-          <label>Email Address</label>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-          />
+              <button type="submit" className="signup-btn">Sign Up</button>
+            </form>
 
-          <label>Password</label>
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-          />
+            <p className="login-redirect">
+              Already have an account? <span onClick={onClose}>Login</span>
+            </p>
+          </>
+        )}
 
-          <label>Confirm Password</label>
-          <input
-            type="password"
-            placeholder="Confirm your password"
-            value={form.confirmPassword}
-            onChange={(e) =>
-              setForm({ ...form, confirmPassword: e.target.value })
-            }
-          />
-
-          <button type="submit" className="submit-btn">
-            Send OTP
-          </button>
-        </form>
+        {/* 🔹 OTP VERIFICATION */}
+        {step === "verify" && (
+          <>
+            <h2>Verify OTP</h2>
+            <form onSubmit={handleVerifyOtp}>
+              <input
+                type="text"
+                placeholder="Enter the OTP sent to your email"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+              />
+              <button type="submit" className="verify-btn">Verify OTP</button>
+            </form>
+            <p className="back-link" onClick={() => setStep("signup")}>
+              ← Back to Signup
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

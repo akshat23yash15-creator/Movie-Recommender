@@ -121,3 +121,89 @@ input:focus {
     padding: 30px;
   }
 }
+.signup-modal {
+  background: #141414;
+  padding: 30px 40px;
+  border-radius: 15px;
+  width: 380px;
+  color: white;
+  box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+  position: relative;
+  animation: fadeIn 0.4s ease;
+}
+
+.signup-modal h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #4facfe, #9b4dff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.signup-modal input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #1e1e1e;
+  color: white;
+  font-size: 0.95rem;
+}
+
+.signup-modal input:focus {
+  border-color: #4facfe;
+  outline: none;
+}
+
+.signup-btn,
+.verify-btn {
+  width: 100%;
+  background: linear-gradient(90deg, #4facfe, #9b4dff);
+  border: none;
+  color: white;
+  padding: 10px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.signup-btn:hover,
+.verify-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 12px rgba(79, 172, 254, 0.6);
+}
+
+.login-redirect {
+  text-align: center;
+  margin-top: 10px;
+  color: #aaa;
+}
+
+.login-redirect span {
+  color: #4facfe;
+  cursor: pointer;
+}
+
+.login-redirect span:hover {
+  color: #9b4dff;
+}
+
+.back-link {
+  color: #4facfe;
+  text-align: center;
+  margin-top: 15px;
+  cursor: pointer;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
