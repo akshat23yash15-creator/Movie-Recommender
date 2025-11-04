@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Navbar.css";
@@ -10,7 +10,9 @@ const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
+  const searchRef = useRef(null);
 
   const TMDB_HEADERS = {
     Authorization: `Bearer ${TMDB_TOKEN}`,
@@ -20,6 +22,7 @@ const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
   useEffect(() => {
     if (query.length < 1) {
       setSuggestions([]);
+      setShowDropdown(false);
       return;
     }
 
@@ -36,10 +39,21 @@ const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
       }
     };
 
-    const delay = setTimeout(fetchSuggestions, 400); 
+    const delay = setTimeout(fetchSuggestions, 400);
     return () => clearTimeout(delay);
   }, [query]);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  
   const handleSearch = (movieTitle = query) => {
     if (!movieTitle.trim()) return;
     onSearch(movieTitle);
@@ -50,89 +64,105 @@ const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
   };
 
   return (
-  <nav className="navbar">
-    {/* Left side: Logo */}
-    <div className="logo gradient-text">ROOVIE</div>
+    <nav className={`navbar ${showDropdown ? "search-active" : ""}`}>
+   
+      <div className="logo gradient-text">ROOVIE</div>
 
-    {/* Middle: Search bar */}
-    <div className="search-wrapper">
-      <div className="search-box">
-        <input
-          type="text"
-          placeholder="Search movies..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => query.length >= 2 && setShowDropdown(true)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-        />
-        <button className="search-btn" onClick={() => handleSearch()}>
-          🔍
-        </button>
+    
+      <div className="search-wrapper" ref={searchRef}>
+        <div className="search-box">
+          <input
+            type="text"
+            placeholder="Search movies..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => query.length >= 1 && setShowDropdown(true)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          />
+          <button className="search-btn" onClick={() => handleSearch()}>
+            🔍
+          </button>
+        </div>
+
+        {showDropdown && suggestions.length > 0 && (
+          <ul className="suggestions-dropdown">
+            {suggestions.map((movie) => (
+              <li
+                key={movie.id}
+                className="suggestion-item"
+                onClick={() => handleSearch(movie.title)}
+              >
+                {movie.poster_path && (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w45${movie.poster_path}`}
+                    alt={movie.title}
+                  />
+                )}
+                <span>{movie.title}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
-      {showDropdown && suggestions.length > 0 && (
-        <ul className="suggestions-dropdown">
-          {suggestions.map((movie) => (
-            <li
-              key={movie.id}
-              className="suggestion-item"
-              onClick={() => handleSearch(movie.title)}
-            >
-              {movie.poster_path && (
-                <img
-                  src={`https://image.tmdb.org/t/p/w45${movie.poster_path}`}
-                  alt={movie.title}
-                />
-              )}
-              <span>{movie.title}</span>
-            </li>
-          ))}
+      <div className={`nav-links-container ${showMobileMenu ? "hide" : ""}`}>
+        <ul className="nav-links">
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/top-rated">Top Rated</Link></li>
+          <li><Link to="/recommended">Recommended</Link></li>
+          <li onClick={onProfileClick}>Profile</li>
         </ul>
+
+        <div className="nav-buttons">
+          <button className="login-btn" onClick={onLoginClick}>Login</button>
+          <button className="signup-btn" onClick={onSignupClick}>Sign Up</button>
+        </div>
+      </div>
+
+  
+      {!showDropdown && (
+        <div
+          className={`hamburger ${showMobileMenu ? "active" : ""}`}
+          onClick={() => setShowMobileMenu((prev) => !prev)}
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
       )}
-    </div>
 
-    {/* Right side: Nav links & buttons */}
-    <div className={`nav-links-container ${showDropdown ? "hide" : ""}`}>
-      <ul className="nav-links">
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/top-rated">Top Rated</Link></li>
-        <li><Link to="/recommended">Recommended</Link></li>
-        <li onClick={onProfileClick}>Profile</li>
-      </ul>
+      
+      <div className={`mobile-menu ${showMobileMenu ? "open" : ""}`}>
+        <ul className="mobile-links">
+          <li><Link to="/" onClick={() => setShowMobileMenu(false)}>Home</Link></li>
+          <li><Link to="/top-rated" onClick={() => setShowMobileMenu(false)}>Top Rated</Link></li>
+          <li><Link to="/recommended" onClick={() => setShowMobileMenu(false)}>Recommended</Link></li>
+          <li onClick={() => { onProfileClick(); setShowMobileMenu(false); }}>Profile</li>
+        </ul>
 
-      <div className="nav-buttons">
-        <button className="login-btn" onClick={onLoginClick}>Login</button>
-        <button className="signup-btn" onClick={onSignupClick}>Sign Up</button>
+        <div className="mobile-buttons">
+          <button
+            className="login-btn"
+            onClick={() => {
+              onLoginClick();
+              setShowMobileMenu(false);
+            }}
+          >
+            Login
+          </button>
+          <button
+            className="signup-btn"
+            onClick={() => {
+              onSignupClick();
+              setShowMobileMenu(false);
+            }}
+          >
+            Sign Up
+          </button>
+        </div>
       </div>
-    </div>
-
-    {/* Hamburger icon (visible only on mobile) */}
-    <div
-      className={`hamburger ${showDropdown ? "active" : ""}`}
-      onClick={() => setShowDropdown((prev) => !prev)}
-    >
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-
-    {/* Mobile dropdown menu */}
-    <div className={`mobile-menu ${showDropdown ? "open" : ""}`}>
-      <ul className="mobile-links">
-        <li><Link to="/" onClick={() => setShowDropdown(false)}>Home</Link></li>
-        <li><Link to="/top-rated" onClick={() => setShowDropdown(false)}>Top Rated</Link></li>
-        <li><Link to="/recommended" onClick={() => setShowDropdown(false)}>Recommended</Link></li>
-        <li onClick={() => { onProfileClick(); setShowDropdown(false); }}>Profile</li>
-      </ul>
-
-      <div className="mobile-buttons">
-        <button className="login-btn" onClick={() => { onLoginClick(); setShowDropdown(false); }}>Login</button>
-        <button className="signup-btn" onClick={() => { onSignupClick(); setShowDropdown(false); }}>Sign Up</button>
-      </div>
-    </div>
-  </nav>
-);
-
+    </nav>
+  );
 };
 
 export default Navbar;

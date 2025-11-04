@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import "./Signup.css";
 import { registerUser, verifyOTP, verifyAccount } from "../../api/authService";
 
-const Signup = ({ onClose }) => {
-  const [step, setStep] = useState("signup"); // signup | verify
+const Signup = ({ onClose, onLoginClick }) => {
+  const [step, setStep] = useState("signup");
   const [signupData, setSignupData] = useState({
     full_name: "",
     email: "",
@@ -15,11 +15,10 @@ const Signup = ({ onClose }) => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // 🧩 Step 1 — Handle Registration
+  // ✅ Step 1 — Registration
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    // validate passwords
     if (signupData.password !== signupData.confirmPassword) {
       setErrorMsg("Passwords do not match!");
       return;
@@ -41,7 +40,6 @@ const Signup = ({ onClose }) => {
 
       if (response?.success) {
         alert(response.message || "Signup successful! Generating OTP...");
-        // Step 2 — ask backend to send OTP
         const otpResponse = await verifyOTP();
         console.log("📩 OTP email triggered:", otpResponse);
         alert(otpResponse.message || "OTP sent to your email. Please verify.");
@@ -57,15 +55,14 @@ const Signup = ({ onClose }) => {
     }
   };
 
-  // 🧩 Step 3 — Verify OTP
+  // ✅ Step 2 — Verify OTP
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       console.log("🔍 Verifying OTP:", otp);
-
-      const verifyResponse = await verifyAccount({ otp }); // ✅ pass otp object
+      const verifyResponse = await verifyAccount({ otp });
       console.log("✅ Account verification response:", verifyResponse);
 
       if (verifyResponse?.success) {
@@ -79,8 +76,11 @@ const Signup = ({ onClose }) => {
         });
         setOtp("");
         onClose();
+        if (onLoginClick) onLoginClick(); // ✅ Switch to Login automatically
       } else {
-        setErrorMsg(verifyResponse?.message || "Invalid OTP or verification failed.");
+        setErrorMsg(
+          verifyResponse?.message || "Invalid OTP or verification failed."
+        );
       }
     } catch (err) {
       console.error("❌ Verification error:", err);
@@ -90,11 +90,12 @@ const Signup = ({ onClose }) => {
     }
   };
 
-  // 🧱 UI
   return (
     <div className="modal-overlay">
       <div className="signup-modal">
-        <button className="close-btn" onClick={onClose}>✖</button>
+        <button className="close-btn" onClick={onClose}>
+          ✖
+        </button>
 
         {step === "signup" && (
           <>
@@ -147,8 +148,17 @@ const Signup = ({ onClose }) => {
               </button>
             </form>
 
+            {/* ✅ Added click handler for "Already have an account? Login" */}
             <p className="login-redirect">
-              Already have an account? <span onClick={onClose}>Login</span>
+              Already have an account?{" "}
+              <span
+                onClick={() => {
+                  onClose();
+                  if (onLoginClick) onLoginClick();
+                }}
+              >
+                Login
+              </span>
             </p>
           </>
         )}

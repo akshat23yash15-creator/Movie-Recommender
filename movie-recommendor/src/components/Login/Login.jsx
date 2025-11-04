@@ -1,9 +1,10 @@
+// src/components/Login/Login.jsx
 import React, { useState } from "react";
 import "./Login.css";
 import { loginUser } from "../../api/authService";
-import ResetPassword from "./ResetPassword"; 
+import ResetPassword from "./ResetPassword";
 
-const Login = ({ onClose }) => {
+const Login = ({ onClose, onSignupClick }) => {
   const [showReset, setShowReset] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({
@@ -16,9 +17,9 @@ const Login = ({ onClose }) => {
     setLoading(true);
     try {
       const res = await loginUser({
-  email: loginData.email,
-  password: loginData.password,
-});
+        email: loginData.email,
+        password: loginData.password,
+      });
 
       alert("Login successful!");
       console.log("User:", res);
@@ -31,9 +32,7 @@ const Login = ({ onClose }) => {
     }
   };
 
-  const handleForgotClick = () => {
-    setShowReset(true);
-  };
+  const handleForgotClick = () => setShowReset(true);
 
   return (
     <div className="login-modal">
@@ -42,6 +41,7 @@ const Login = ({ onClose }) => {
           <button className="close-btn" onClick={onClose}>
             ✖
           </button>
+
           <h2 className="modal-title">Login</h2>
           <p className="modal-subtitle">Welcome back! Please log in.</p>
 
@@ -83,8 +83,15 @@ const Login = ({ onClose }) => {
             Forgot Password?
           </p>
 
+        
           <p className="signup-text">
-            Don't have an account? <span>Sign Up</span>
+            Don't have an account?{" "}
+            <span onClick={() => {
+              onClose();         
+              onSignupClick();   
+            }}>
+              Sign Up
+            </span>
           </p>
         </div>
       ) : (

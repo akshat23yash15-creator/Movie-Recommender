@@ -1,4 +1,3 @@
-/* ======== MAIN NAVBAR ======== */
 .navbar {
   width: 100%;
   height: 80px;
@@ -31,7 +30,6 @@
   text-transform: uppercase;
 }
 
-/* ======== SEARCH ======== */
 .search-wrapper {
   position: relative;
 }
@@ -77,7 +75,6 @@
   transform: scale(1.15);
 }
 
-/* ======== LINKS ======== */
 .nav-links-container {
   display: flex;
   align-items: center;
@@ -107,7 +104,6 @@
   color: #4facfe;
 }
 
-/* ======== BUTTONS ======== */
 .nav-buttons {
   display: flex;
   margin-left: 40px;
@@ -150,7 +146,6 @@
   box-shadow: 0 0 18px rgba(79, 172, 254, 0.9);
 }
 
-/* ======== SEARCH DROPDOWN ======== */
 .suggestions-dropdown {
   position: absolute;
   top: 52px;
@@ -186,7 +181,6 @@
   object-fit: cover;
 }
 
-/* ======== HAMBURGER MENU ======== */
 .hamburger {
   display: none;
   flex-direction: column;
@@ -218,7 +212,6 @@
   transform: rotate(-45deg) translateY(-7px);
 }
 
-/* ======== MOBILE MENU ======== */
 .mobile-menu {
   display: none;
   position: absolute;
@@ -266,7 +259,6 @@
   margin-top: 10px;
 }
 
-/* ======== ANIMATION ======== */
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -278,7 +270,6 @@
   }
 }
 
-/* ======== RESPONSIVE DESIGN ======== */
 @media (max-width: 1024px) {
   .navbar {
     padding: 0 25px;
@@ -300,7 +291,7 @@
   }
 
   .nav-links-container {
-    display: none; /* hide links on mobile */
+    display: none; 
   }
 
   .hamburger {

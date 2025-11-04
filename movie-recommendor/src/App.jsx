@@ -12,49 +12,44 @@ import { fetchMoviesWithPosters } from "./api/movieService";
 import "./App.css";
 
 const App = () => {
-  
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
-  
   const [recommendedMovies, setRecommendedMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTitle, setSearchTitle] = useState("");
   const [heroMovie, setHeroMovie] = useState(null);
 
- const handleSearch = async (query) => {
-  if (!query.trim()) return;
+  const handleSearch = async (query) => {
+    if (!query.trim()) return;
 
-  console.log(" Searching for:", query);
-  setSearchTitle(query);
+    console.log("🔍 Searching for:", query);
+    setSearchTitle(query);
+    setHeroMovie(null);
+    setRecommendedMovies([]);
+    setLoading(true);
 
-  
-  setHeroMovie(null);
-  setRecommendedMovies([]);
-  setLoading(true);
+    const formattedTitle = query
+      .split(" ")
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(" ");
 
-  const formattedTitle = query
-    .split(" ")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-    .join(" ");
-
-  try {
-    const results = await fetchMoviesWithPosters(formattedTitle);
-    setRecommendedMovies(results);
-    setHeroMovie(results[0] || null);
-  } catch (err) {
-    console.error("❌ Error fetching recommendations:", err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+    try {
+      const results = await fetchMoviesWithPosters(formattedTitle);
+      setRecommendedMovies(results);
+      setHeroMovie(results[0] || null);
+    } catch (err) {
+      console.error("❌ Error fetching recommendations:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Router>
       <div className="App">
-       
+        {/* ✅ Navbar */}
         <Navbar
           onLoginClick={() => setShowLogin(true)}
           onSignupClick={() => setShowSignup(true)}
@@ -62,32 +57,22 @@ const App = () => {
           onSearch={handleSearch}
         />
 
-       
+        {/* ✅ Main Section */}
         <div className="main-content">
-         
           {heroMovie && <Hero movie={heroMovie} />}
 
           <Routes>
-            
             <Route
               path="/"
               element={
-                <Home
-                  recommendedMovies={recommendedMovies}
-                  loading={loading}
-                />
+                <Home recommendedMovies={recommendedMovies} loading={loading} />
               }
             />
-
-           
             <Route path="/top-rated" element={<TopRated />} />
-
-          
             <Route
               path="/recommended"
               element={
                 <div className="recommended-page">
-                 
                   {loading ? (
                     <p className="loading">Fetching recommendations...</p>
                   ) : (
@@ -98,15 +83,11 @@ const App = () => {
                           <span>"{searchTitle}"</span>
                         </h2>
                       )}
-
-                      {recommendedMovies.length > 0 ? (
+                      {recommendedMovies.length > 0 && (
                         <MovieGrid
                           title="🎯 Recommended"
                           movies={recommendedMovies}
                         />
-                      ) : (
-                       
-                        null
                       )}
                     </>
                   )}
@@ -116,8 +97,29 @@ const App = () => {
           </Routes>
         </div>
 
-        {showLogin && <Login onClose={() => setShowLogin(false)} />}
-        {showSignup && <Signup onClose={() => setShowSignup(false)} />}
+        {/* ✅ Login Modal */}
+        {showLogin && (
+          <Login
+            onClose={() => setShowLogin(false)}
+            onSignupClick={() => {
+              setShowLogin(false);
+              setShowSignup(true);
+            }}
+          />
+        )}
+
+        {/* ✅ Signup Modal */}
+        {showSignup && (
+          <Signup
+            onClose={() => setShowSignup(false)}
+            onLoginClick={() => {
+              setShowSignup(false);
+              setShowLogin(true);
+            }}
+          />
+        )}
+
+        {/* ✅ Profile Modal (Restored) */}
         {showProfile && <Profile onClose={() => setShowProfile(false)} />}
       </div>
     </Router>
