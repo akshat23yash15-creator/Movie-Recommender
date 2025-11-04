@@ -1,9 +1,10 @@
+// src/components/Signup/Signup.jsx
 import React, { useState } from "react";
 import "./Signup.css";
-import { registerUser, verifyOTP, verifyAccount, sendResetOtp } from "../../api/authService";
+import { registerUser, verifyOTP, verifyAccount } from "../../api/authService";
 
 const Signup = ({ onClose }) => {
-  const [step, setStep] = useState("signup");
+  const [step, setStep] = useState("signup"); // signup | verify
   const [signupData, setSignupData] = useState({
     full_name: "",
     email: "",
@@ -11,15 +12,14 @@ const Signup = ({ onClose }) => {
     confirmPassword: "",
   });
   const [otp, setOtp] = useState("");
-  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Handle Signup
+  // 🧩 Step 1 — Handle Registration
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    // Instead of alert, set error message
+    // validate passwords
     if (signupData.password !== signupData.confirmPassword) {
       setErrorMsg("Passwords do not match!");
       return;
@@ -29,27 +29,26 @@ const Signup = ({ onClose }) => {
     setLoading(true);
 
     try {
-      console.log(" Sending signup request:", signupData);
+      console.log("📝 Sending signup request:", signupData);
 
       const response = await registerUser({
-        full_name: signupData.full_name || signupData.name,
+        full_name: signupData.full_name,
         email: signupData.email,
         password: signupData.password,
       });
 
-      console.log(" Backend response:", response);
+      console.log("✅ Backend response:", response);
 
-      if (response?.token) {
-        setToken(response.token);
-        try {
-          localStorage.setItem("verifyToken", response.token);
-        } catch (e) { }
-        console.log(" Stored token:", response.token);
+      if (response?.success) {
+        alert(response.message || "Signup successful! Generating OTP...");
+        // Step 2 — ask backend to send OTP
+        const otpResponse = await verifyOTP();
+        console.log("📩 OTP email triggered:", otpResponse);
+        alert(otpResponse.message || "OTP sent to your email. Please verify.");
+        setStep("verify");
+      } else {
+        setErrorMsg(response?.message || "Signup failed. Try again.");
       }
-
-      alert(response.message || "Signup successful! OTP sent to your email.");
-      setStep("verify");
-      handleVerifyOtp();
     } catch (err) {
       console.error("❌ Signup error:", err);
       setErrorMsg(err.message || "Signup failed! Please try again.");
@@ -58,52 +57,44 @@ const Signup = ({ onClose }) => {
     }
   };
 
-  // 🧩 Handle OTP Verification
+  // 🧩 Step 3 — Verify OTP
   const handleVerifyOtp = async (e) => {
-    e?.preventDefault?.();
-
-    const effectiveToken = token ||
-      (() => {
-        try {
-          return localStorage.getItem("verifyToken");
-        } catch (e) {
-          return null;
-        }
-      })();
-
+    e.preventDefault();
     setLoading(true);
+
     try {
-      console.log("🔎 verifyOtp called, token(fallback):", effectiveToken, "otp:", otp);
+      console.log("🔍 Verifying OTP:", otp);
 
-      const otpResponse = await verifyOTP();
-      console.log("OTP verified:", otpResponse);
+      const verifyResponse = await verifyAccount({ otp }); // ✅ pass otp object
+      console.log("✅ Account verification response:", verifyResponse);
 
-      const verifyResponse = await verifyAccount();
-      console.log("Account verified:", verifyResponse);
-
-      const sendOtpResponse = await sendResetOtp(signupData.email);
-      console.log(" OTP email sent:", sendOtpResponse);
-
-      alert("Account verified and OTP sent to your email!");
-
-      setStep("signup");
-      setSignupData({ name: "", email: "", password: "", confirmPassword: "" });
-      setOtp("");
-      onClose();
+      if (verifyResponse?.success) {
+        alert("🎉 Email verified successfully! You can now log in.");
+        setStep("signup");
+        setSignupData({
+          full_name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
+        setOtp("");
+        onClose();
+      } else {
+        setErrorMsg(verifyResponse?.message || "Invalid OTP or verification failed.");
+      }
     } catch (err) {
-      console.error("❌ Verification flow error:", err);
-      setErrorMsg(err.message || "Verification failed.");
+      console.error("❌ Verification error:", err);
+      setErrorMsg(err.message || "Verification failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  // 🧱 UI
   return (
     <div className="modal-overlay">
       <div className="signup-modal">
-        <button className="close-btn" onClick={onClose}>
-          ✖
-        </button>
+        <button className="close-btn" onClick={onClose}>✖</button>
 
         {step === "signup" && (
           <>
@@ -112,22 +103,28 @@ const Signup = ({ onClose }) => {
               <input
                 type="text"
                 placeholder="Full Name"
-                value={signupData.name}
-                onChange={(e) => setSignupData({ ...signupData, name: e.target.value })}
+                value={signupData.full_name}
+                onChange={(e) =>
+                  setSignupData({ ...signupData, full_name: e.target.value })
+                }
                 required
               />
               <input
                 type="email"
                 placeholder="Email"
                 value={signupData.email}
-                onChange={(e) => setSignupData({ ...signupData, email: e.target.value })}
+                onChange={(e) =>
+                  setSignupData({ ...signupData, email: e.target.value })
+                }
                 required
               />
               <input
                 type="password"
                 placeholder="Password"
                 value={signupData.password}
-                onChange={(e) => setSignupData({ ...signupData, password: e.target.value })}
+                onChange={(e) =>
+                  setSignupData({ ...signupData, password: e.target.value })
+                }
                 required
               />
               <input
@@ -135,16 +132,18 @@ const Signup = ({ onClose }) => {
                 placeholder="Confirm Password"
                 value={signupData.confirmPassword}
                 onChange={(e) =>
-                  setSignupData({ ...signupData, confirmPassword: e.target.value })
+                  setSignupData({
+                    ...signupData,
+                    confirmPassword: e.target.value,
+                  })
                 }
                 required
               />
 
-              {/* ✅ Inline error message */}
               {errorMsg && <p className="error-message">{errorMsg}</p>}
 
               <button type="submit" className="signup-btn" disabled={loading}>
-                {loading ? "Creating Account..." : "Send OTP"}
+                {loading ? "Creating Account..." : "Sign Up"}
               </button>
             </form>
 
@@ -165,6 +164,7 @@ const Signup = ({ onClose }) => {
                 onChange={(e) => setOtp(e.target.value)}
                 required
               />
+              {errorMsg && <p className="error-message">{errorMsg}</p>}
               <button type="submit" className="verify-btn" disabled={loading}>
                 {loading ? "Verifying..." : "Verify OTP"}
               </button>

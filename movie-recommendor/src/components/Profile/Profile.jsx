@@ -5,28 +5,54 @@ import { getUserData, logoutUser } from "../../api/authService";
 
 const Profile = ({ onClose }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const fetchData = async () => {
+      try {
+        // ✅ Fetch user data using cookie (no token needed)
+        const data = await getUserData();
+        console.log("✅ User data fetched:", data);
 
-    if (!token) {
-      setUser({ name: "Guest", email: "guest@roovie.com" });
-      return;
-    }
+        // your backend likely returns { success: true, user: { full_name, email } }
+        if (data?.success && data?.user) {
+          setUser(data.user);
+        } else {
+          setUser({ full_name: "Guest", email: "guest@roovie.com" });
+        }
+      } catch (err) {
+        console.error("❌ Error fetching user data:", err);
+        setErrorMsg("Failed to load profile. Please log in again.");
+        setUser({ full_name: "Guest", email: "guest@roovie.com" });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    getUserData(token)
-      .then((data) => setUser(data))
-      .catch(() => {
-        setUser({ name: "Guest", email: "guest@roovie.com" });
-      });
+    fetchData();
   }, []);
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("token");
-    if (token) await logoutUser(token);
-    localStorage.clear();
-    onClose();
+    try {
+      await logoutUser(); // ✅ Works cookie-based now
+      alert("You have been logged out successfully!");
+      onClose();
+    } catch (err) {
+      console.error("Logout failed:", err);
+      alert("Something went wrong during logout.");
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="profile-overlay">
+        <div className="profile-modal">
+          <p>Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="profile-overlay">
@@ -40,14 +66,16 @@ const Profile = ({ onClose }) => {
         <div className="profile-content">
           <div className="profile-avatar">👤</div>
 
+          {errorMsg && <p className="error-message">{errorMsg}</p>}
+
           <div className="profile-field">
             <label>Name:</label>
-            <p>{user?.name}</p>
+            <p>{user?.full_name || "Guest"}</p>
           </div>
 
           <div className="profile-field">
             <label>Email:</label>
-            <p>{user?.email}</p>
+            <p>{user?.email || "guest@roovie.com"}</p>
           </div>
         </div>
 

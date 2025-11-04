@@ -50,59 +50,89 @@ const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
   };
 
   return (
-    <nav className="navbar">
-      <div className="logo gradient-text">ROOVIE</div>
+  <nav className="navbar">
+    {/* Left side: Logo */}
+    <div className="logo gradient-text">ROOVIE</div>
 
-      <div className="search-wrapper">
-        <div className="search-box">
-          <input
-            type="text"
-            placeholder="Search movies..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onFocus={() => query.length >= 2 && setShowDropdown(true)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          />
-          <button className="search-btn" onClick={() => handleSearch()}>
-            🔍
-          </button>
-        </div>
-
-        
-        {showDropdown && suggestions.length > 0 && (
-          <ul className="suggestions-dropdown">
-            {suggestions.map((movie) => (
-              <li
-                key={movie.id}
-                className="suggestion-item"
-                onClick={() => handleSearch(movie.title)}>
-                {movie.poster_path && (
-                  <img
-                    src={`https://image.tmdb.org/t/p/w45${movie.poster_path}`}
-                    alt={movie.title}/>
-                )}
-                <span>{movie.title}</span>
-              </li>
-            ))}
-          </ul>
-        )}
+    {/* Middle: Search bar */}
+    <div className="search-wrapper">
+      <div className="search-box">
+        <input
+          type="text"
+          placeholder="Search movies..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onFocus={() => query.length >= 2 && setShowDropdown(true)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+        />
+        <button className="search-btn" onClick={() => handleSearch()}>
+          🔍
+        </button>
       </div>
 
-      <div className="nav-center">
-        <ul className="nav-links">
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/top-rated">Top Rated</Link></li>
-          <li><Link to="/recommended">Recommended</Link></li>
-          <li onClick={onProfileClick}>Profile</li>
+      {showDropdown && suggestions.length > 0 && (
+        <ul className="suggestions-dropdown">
+          {suggestions.map((movie) => (
+            <li
+              key={movie.id}
+              className="suggestion-item"
+              onClick={() => handleSearch(movie.title)}
+            >
+              {movie.poster_path && (
+                <img
+                  src={`https://image.tmdb.org/t/p/w45${movie.poster_path}`}
+                  alt={movie.title}
+                />
+              )}
+              <span>{movie.title}</span>
+            </li>
+          ))}
         </ul>
-      </div>
+      )}
+    </div>
+
+    {/* Right side: Nav links & buttons */}
+    <div className={`nav-links-container ${showDropdown ? "hide" : ""}`}>
+      <ul className="nav-links">
+        <li><Link to="/">Home</Link></li>
+        <li><Link to="/top-rated">Top Rated</Link></li>
+        <li><Link to="/recommended">Recommended</Link></li>
+        <li onClick={onProfileClick}>Profile</li>
+      </ul>
 
       <div className="nav-buttons">
         <button className="login-btn" onClick={onLoginClick}>Login</button>
         <button className="signup-btn" onClick={onSignupClick}>Sign Up</button>
       </div>
-    </nav>
-  );
+    </div>
+
+    {/* Hamburger icon (visible only on mobile) */}
+    <div
+      className={`hamburger ${showDropdown ? "active" : ""}`}
+      onClick={() => setShowDropdown((prev) => !prev)}
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    {/* Mobile dropdown menu */}
+    <div className={`mobile-menu ${showDropdown ? "open" : ""}`}>
+      <ul className="mobile-links">
+        <li><Link to="/" onClick={() => setShowDropdown(false)}>Home</Link></li>
+        <li><Link to="/top-rated" onClick={() => setShowDropdown(false)}>Top Rated</Link></li>
+        <li><Link to="/recommended" onClick={() => setShowDropdown(false)}>Recommended</Link></li>
+        <li onClick={() => { onProfileClick(); setShowDropdown(false); }}>Profile</li>
+      </ul>
+
+      <div className="mobile-buttons">
+        <button className="login-btn" onClick={() => { onLoginClick(); setShowDropdown(false); }}>Login</button>
+        <button className="signup-btn" onClick={() => { onSignupClick(); setShowDropdown(false); }}>Sign Up</button>
+      </div>
+    </div>
+  </nav>
+);
+
 };
 
 export default Navbar;
