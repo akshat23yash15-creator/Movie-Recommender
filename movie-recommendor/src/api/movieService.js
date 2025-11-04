@@ -13,7 +13,7 @@ const TMDB_HEADERS = {
 export const fetchRecommendedMovies = async (title = "The Avengers") => {
   try {
     const endpoint = `${ML_API_BASE_URL}/recommend/${encodeURIComponent(title)}`;
-    console.log("🌐 Calling ML API at:", endpoint); // 🔍 New log line
+    console.log("🌐 Calling ML API at:", endpoint); 
 
     const res = await axios.get(endpoint);
     console.log("🎯 ML API Response:", res.data);
@@ -26,9 +26,7 @@ export const fetchRecommendedMovies = async (title = "The Avengers") => {
   }
 };
 
-/**
- * 2️⃣ Fetch top-rated movies from TMDB
- */
+
 export const fetchTopRatedMovies = async () => {
   try {
     const res = await axios.get(`${TMDB_BASE_URL}/movie/top_rated`, {
@@ -64,7 +62,7 @@ export const fetchMoviesWithPosters = async (title) => {
   const mlMovies = await fetchRecommendedMovies(title);
   const combined = [];
 
-  // Fallback to TMDB Popular movies if ML returns empty
+  
   if (!mlMovies.length) {
     console.warn("⚠️ No ML recommendations found, loading fallback popular movies...");
     const res = await axios.get(`${TMDB_BASE_URL}/movie/popular`, {

@@ -58,7 +58,6 @@
   font-weight: 600;
 }
 
-/* Input and label styling */
 label {
   display: block;
   margin: 10px 0 5px;
@@ -136,6 +135,7 @@ input:focus {
   text-align: center;
   margin-bottom: 20px;
   background: linear-gradient(90deg, #4facfe, #9b4dff);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -206,4 +206,11 @@ input:focus {
     opacity: 1;
     transform: translateY(0);
   }
+}
+.error-message {
+  color: #ff4d4d;
+  font-size: 0.9rem;
+  margin-top: 8px;
+  text-align: center;
+  font-weight: 500;
 }

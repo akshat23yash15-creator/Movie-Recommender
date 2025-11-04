@@ -17,7 +17,6 @@ const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
     Accept: "application/json",
   };
 
-  // 🔍 Fetch movie suggestions when typing
   useEffect(() => {
     if (query.length < 1) {
       setSuggestions([]);

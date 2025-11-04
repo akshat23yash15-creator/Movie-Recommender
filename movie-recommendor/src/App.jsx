@@ -26,7 +26,7 @@ const App = () => {
  const handleSearch = async (query) => {
   if (!query.trim()) return;
 
-  console.log("🔍 Searching for:", query);
+  console.log(" Searching for:", query);
   setSearchTitle(query);
 
   

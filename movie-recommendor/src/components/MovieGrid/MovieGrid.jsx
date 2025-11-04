@@ -18,7 +18,7 @@ const MovieGrid = ({ title, movies = [] }) => {
                 }
                 alt={movie.title}
               />
-              w
+              
               <h3>{movie.title}</h3>
               <div className="rating">
                 <span className="star">★</span>

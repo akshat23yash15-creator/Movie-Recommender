@@ -9,7 +9,7 @@ const Hero = ({ movie }) => {
     if (movie) {
       
       setFade(true);
-      const timer = setTimeout(() => setFade(false), 800); // 0.8s fade
+      const timer = setTimeout(() => setFade(false), 800); 
       return () => clearTimeout(timer);
     }
   }, [movie]);
