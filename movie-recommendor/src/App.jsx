@@ -30,15 +30,12 @@ const App = () => {
     setRecommendedMovies([]);
     setLoading(true);
 
-    const formattedTitle = query
-      .split(" ")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-      .join(" ");
-
     try {
-      const results = await fetchMoviesWithPosters(formattedTitle);
+      const results = await fetchMoviesWithPosters(query);
       setRecommendedMovies(results);
-      setHeroMovie(results[0] || null);
+      if (results.length > 0) {
+        setHeroMovie(results[0]);
+      }
     } catch (err) {
       console.error("❌ Error fetching recommendations:", err);
     } finally {
@@ -49,7 +46,6 @@ const App = () => {
   return (
     <Router>
       <div className="App">
-        {/* ✅ Navbar */}
         <Navbar
           onLoginClick={() => setShowLogin(true)}
           onSignupClick={() => setShowSignup(true)}
@@ -57,17 +53,11 @@ const App = () => {
           onSearch={handleSearch}
         />
 
-        {/* ✅ Main Section */}
         <div className="main-content">
           {heroMovie && <Hero movie={heroMovie} />}
 
           <Routes>
-            <Route
-              path="/"
-              element={
-                <Home recommendedMovies={recommendedMovies} loading={loading} />
-              }
-            />
+            <Route path="/" element={<Home recommendedMovies={recommendedMovies} loading={loading} />} />
             <Route path="/top-rated" element={<TopRated />} />
             <Route
               path="/recommended"
@@ -75,21 +65,15 @@ const App = () => {
                 <div className="recommended-page">
                   {loading ? (
                     <p className="loading">Fetching recommendations...</p>
-                  ) : (
+                  ) : recommendedMovies.length > 0 ? (
                     <>
-                      {searchTitle && recommendedMovies.length > 0 && (
-                        <h2 className="search-heading">
-                          Showing recommendations for{" "}
-                          <span>"{searchTitle}"</span>
-                        </h2>
-                      )}
-                      {recommendedMovies.length > 0 && (
-                        <MovieGrid
-                          title="🎯 Recommended"
-                          movies={recommendedMovies}
-                        />
-                      )}
+                      <h2 className="search-heading">
+                        Showing recommendations for <span>"{searchTitle}"</span>
+                      </h2>
+                      <MovieGrid title="🎯 Recommended" movies={recommendedMovies} />
                     </>
+                  ) : (
+                    <p className="no-results">No recommendations found for "{searchTitle}"</p>
                   )}
                 </div>
               }
@@ -97,7 +81,6 @@ const App = () => {
           </Routes>
         </div>
 
-        {/* ✅ Login Modal */}
         {showLogin && (
           <Login
             onClose={() => setShowLogin(false)}
@@ -108,7 +91,6 @@ const App = () => {
           />
         )}
 
-        {/* ✅ Signup Modal */}
         {showSignup && (
           <Signup
             onClose={() => setShowSignup(false)}
@@ -119,7 +101,6 @@ const App = () => {
           />
         )}
 
-        {/* ✅ Profile Modal (Restored) */}
         {showProfile && <Profile onClose={() => setShowProfile(false)} />}
       </div>
     </Router>

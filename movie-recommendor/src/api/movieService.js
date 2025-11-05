@@ -9,40 +9,33 @@ const TMDB_HEADERS = {
   Accept: "application/json",
 };
 
-
+// ✅ 1️⃣ Fetch Recommendations from ML API
 export const fetchRecommendedMovies = async (title = "The Avengers") => {
   try {
     const endpoint = `${ML_API_BASE_URL}/recommend/${encodeURIComponent(title)}`;
-    console.log("🌐 Calling ML API at:", endpoint); 
+    console.log("🌐 Calling ML API at:", endpoint);
 
-    const res = await axios.get(endpoint);
+    // prevent browser caching
+    const res = await axios.get(endpoint, {
+      headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+    });
+
     console.log("🎯 ML API Response:", res.data);
 
-    const data = res.data.recommendations || [];
-    return data;
+    const data = res.data?.recommendations || [];
+    if (!data.length) {
+      console.warn(`⚠️ No recommendations found for "${title}".`);
+    }
+
+    // limit to top 5 always
+    return data.slice(0, 5);
   } catch (err) {
     console.error("❌ Error fetching from ML API:", err.response?.data || err.message);
     return [];
   }
 };
 
-
-export const fetchTopRatedMovies = async () => {
-  try {
-    const res = await axios.get(`${TMDB_BASE_URL}/movie/top_rated`, {
-      headers: TMDB_HEADERS,
-      params: { language: "en-US", page: 1 },
-    });
-
-    console.log("⭐ Top Rated Movies:", res);
-    return res.data.results;
-  } catch (err) {
-    console.error("❌ Error fetching top-rated movies:", err.response?.data || err.message);
-    return [];
-  }
-};
-
-
+// ✅ 2️⃣ Fetch poster path for a movie title
 export const fetchPosterByTitle = async (title) => {
   try {
     const res = await axios.get(`${TMDB_BASE_URL}/search/movie`, {
@@ -50,21 +43,21 @@ export const fetchPosterByTitle = async (title) => {
       params: { query: title, language: "en-US" },
     });
 
-    return res.data.results?.[0]?.poster_path || null;
+    const movie = res.data.results?.[0];
+    return movie?.poster_path || null;
   } catch (err) {
-    console.error(`⚠️ No poster found for ${title}:`, err.message);
+    console.error(`⚠️ Error fetching poster for "${title}":`, err.message);
     return null;
   }
 };
 
-
+// ✅ 3️⃣ Combine ML recommendations + TMDB posters (parallelized)
 export const fetchMoviesWithPosters = async (title) => {
-  const mlMovies = await fetchRecommendedMovies(title);
-  const combined = [];
+  console.log("🎬 Fetching movies with posters for:", title);
 
-  
+  const mlMovies = await fetchRecommendedMovies(title);
   if (!mlMovies.length) {
-    console.warn("⚠️ No ML recommendations found, loading fallback popular movies...");
+    console.warn("⚠️ ML returned no data, loading TMDB popular fallback...");
     const res = await axios.get(`${TMDB_BASE_URL}/movie/popular`, {
       headers: TMDB_HEADERS,
       params: { language: "en-US", page: 1 },
@@ -72,14 +65,31 @@ export const fetchMoviesWithPosters = async (title) => {
     return res.data.results;
   }
 
-  for (const movie of mlMovies) {
-    const posterPath = await fetchPosterByTitle(movie.title);
-    combined.push({
-      ...movie,
-      poster_path: posterPath,
-    });
-  }
+  // fetch posters in parallel (fast)
+  const moviesWithPosters = await Promise.all(
+    mlMovies.map(async (movie) => {
+      const posterPath = await fetchPosterByTitle(movie.title);
+      return {
+        ...movie,
+        poster_path: posterPath,
+      };
+    })
+  );
 
-  console.log("✅ Combined ML + TMDB Data:", combined);
-  return combined;
+  console.log("✅ Combined ML + TMDB Data:", moviesWithPosters);
+  return moviesWithPosters;
+};
+
+// ✅ 4️⃣ Optional - Fetch top rated movies
+export const fetchTopRatedMovies = async () => {
+  try {
+    const res = await axios.get(`${TMDB_BASE_URL}/movie/top_rated`, {
+      headers: TMDB_HEADERS,
+      params: { language: "en-US", page: 1 },
+    });
+    return res.data.results;
+  } catch (err) {
+    console.error("❌ Error fetching top-rated movies:", err.message);
+    return [];
+  }
 };
