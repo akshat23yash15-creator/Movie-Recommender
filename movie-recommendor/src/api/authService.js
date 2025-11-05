@@ -9,13 +9,12 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Handle all API errors in one place
 const handleError = (error) => {
   console.error("❌ API Error:", error.response?.data || error.message);
   throw error.response?.data || { message: "Something went wrong" };
 };
 
-// 🧩 REGISTER USER
+
 export const registerUser = async (userData) => {
   try {
     const res = await api.post("/register", userData);
@@ -25,7 +24,7 @@ export const registerUser = async (userData) => {
   }
 };
 
-// 🧩 SEND OTP (after registration)
+
 export const verifyOTP = async () => {
   try {
     console.log("📨 Calling /register/Verify-OTP to generate OTP");
@@ -36,7 +35,6 @@ export const verifyOTP = async () => {
   }
 };
 
-// 🧩 VERIFY ACCOUNT (user enters OTP)
 export const verifyAccount = async (otpData) => {
   try {
     console.log("🔍 Calling /register/Verify-account with", otpData);
@@ -49,7 +47,6 @@ export const verifyAccount = async (otpData) => {
   }
 };
 
-// 🧩 SEND RESET OTP
 export const sendResetOtp = async (email) => {
   try {
     const res = await api.post("/send-reset-otp", { email });
@@ -59,7 +56,6 @@ export const sendResetOtp = async (email) => {
   }
 };
 
-// 🧩 LOGIN
 export const loginUser = async (credentials) => {
   try {
     const res = await api.post("/login", credentials);
@@ -69,7 +65,6 @@ export const loginUser = async (credentials) => {
   }
 };
 
-// 🧩 FETCH USER DATA
 export const getUserData = async () => {
   try {
     const res = await api.get("/user/data");
@@ -79,7 +74,6 @@ export const getUserData = async () => {
   }
 };
 
-// 🧩 LOGOUT
 export const logoutUser = async () => {
   try {
     const res = await api.post("/logout");
@@ -89,7 +83,6 @@ export const logoutUser = async () => {
   }
 };
 
-// 🧩 RESET PASSWORD
 export const resetPassword = async (email, newPassword) => {
   try {
     const res = await api.post("/reset-password", { email, newPassword });

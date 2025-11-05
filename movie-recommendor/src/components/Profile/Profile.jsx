@@ -18,7 +18,7 @@ const Profile = ({ onClose }) => {
           setUser(data.user);
         } else {
           setErrorMsg("User data not found. Please log in again.");
-          setUser({ full_name: "Guest", email: "guest@roovie.com" });
+          setUser({ full_name: "guest", email: "guest@roovie.com" });
         }
       } catch (err) {
         console.error("❌ Error fetching user data:", err);
