@@ -4,7 +4,7 @@ import "./Login.css";
 import { loginUser } from "../../api/authService";
 import ResetPassword from "./ResetPassword";
 
-const Login = ({ onClose, onSignupClick }) => {
+const Login = ({ onClose, onSignupClick, onProfileClick }) => {
   const [showReset, setShowReset] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({
@@ -21,9 +21,17 @@ const Login = ({ onClose, onSignupClick }) => {
         password: loginData.password,
       });
 
-      alert("Login successful!");
-      console.log("User:", res);
-      onClose();
+      if (res?.success) {
+        alert("✅ Login successful!");
+        console.log("User logged in:", res);
+        onClose();
+        // 👇 automatically open the Profile modal after login
+        setTimeout(() => {
+          onProfileClick();
+        }, 300);
+      } else {
+        alert(res?.message || "❌ Invalid credentials. Please try again.");
+      }
     } catch (err) {
       console.error(err);
       alert("❌ Invalid credentials. Please try again.");
@@ -38,9 +46,7 @@ const Login = ({ onClose, onSignupClick }) => {
     <div className="login-modal">
       {!showReset ? (
         <div className="login-card">
-          <button className="close-btn" onClick={onClose}>
-            ✖
-          </button>
+          <button className="close-btn" onClick={onClose}>✖</button>
 
           <h2 className="modal-title">Login</h2>
           <p className="modal-subtitle">Welcome back! Please log in.</p>
@@ -70,11 +76,7 @@ const Login = ({ onClose, onSignupClick }) => {
               />
             </div>
 
-            <button
-              type="submit"
-              className="login-btn"
-              disabled={loading}
-            >
+            <button type="submit" className="login-btn" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </button>
           </form>
@@ -83,13 +85,14 @@ const Login = ({ onClose, onSignupClick }) => {
             Forgot Password?
           </p>
 
-        
           <p className="signup-text">
-            Don't have an account?{" "}
-            <span onClick={() => {
-              onClose();         
-              onSignupClick();   
-            }}>
+            Don’t have an account?{" "}
+            <span
+              onClick={() => {
+                onClose();
+                onSignupClick();
+              }}
+            >
               Sign Up
             </span>
           </p>

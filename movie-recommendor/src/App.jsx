@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
@@ -57,7 +58,10 @@ const App = () => {
           {heroMovie && <Hero movie={heroMovie} />}
 
           <Routes>
-            <Route path="/" element={<Home recommendedMovies={recommendedMovies} loading={loading} />} />
+            <Route
+              path="/"
+              element={<Home recommendedMovies={recommendedMovies} loading={loading} />}
+            />
             <Route path="/top-rated" element={<TopRated />} />
             <Route
               path="/recommended"
@@ -73,7 +77,9 @@ const App = () => {
                       <MovieGrid title="🎯 Recommended" movies={recommendedMovies} />
                     </>
                   ) : (
-                    <p className="no-results">No recommendations found for "{searchTitle}"</p>
+                    <p className="no-results">
+                      No recommendations found for "{searchTitle}"
+                    </p>
                   )}
                 </div>
               }
@@ -88,6 +94,7 @@ const App = () => {
               setShowLogin(false);
               setShowSignup(true);
             }}
+            onProfileClick={() => setShowProfile(true)} // ✅ added this
           />
         )}
 

@@ -11,14 +11,13 @@ const Profile = ({ onClose }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ✅ Fetch user data using cookie (no token needed)
         const data = await getUserData();
         console.log("✅ User data fetched:", data);
 
-        // your backend likely returns { success: true, user: { full_name, email } }
         if (data?.success && data?.user) {
           setUser(data.user);
         } else {
+          setErrorMsg("User data not found. Please log in again.");
           setUser({ full_name: "Guest", email: "guest@roovie.com" });
         }
       } catch (err) {
@@ -35,7 +34,7 @@ const Profile = ({ onClose }) => {
 
   const handleLogout = async () => {
     try {
-      await logoutUser(); // ✅ Works cookie-based now
+      await logoutUser();
       alert("You have been logged out successfully!");
       onClose();
     } catch (err) {
@@ -57,9 +56,7 @@ const Profile = ({ onClose }) => {
   return (
     <div className="profile-overlay">
       <div className="profile-modal">
-        <button className="close-btn" onClick={onClose}>
-          ✕
-        </button>
+        <button className="close-btn" onClick={onClose}>✕</button>
 
         <h2 className="profile-title gradient-text">My Profile</h2>
 
@@ -77,11 +74,19 @@ const Profile = ({ onClose }) => {
             <label>Email:</label>
             <p>{user?.email || "guest@roovie.com"}</p>
           </div>
+
+          <div className="profile-field">
+            <label>Verified:</label>
+            <p>{user?.isVerified ? "✅ Yes" : "❌ No"}</p>
+          </div>
+
+          <div className="profile-field">
+            <label>Joined:</label>
+            <p>{new Date(user?.createdAt).toLocaleDateString()}</p>
+          </div>
         </div>
 
-        <button className="logout-btn" onClick={handleLogout}>
-          Log Out
-        </button>
+        <button className="logout-btn" onClick={handleLogout}>Log Out</button>
       </div>
     </div>
   );
