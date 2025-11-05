@@ -55,6 +55,7 @@
   text-align: center;
   font-size: 1.8rem;
   background: linear-gradient(90deg, #4facfe, #9b4dff);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.5rem;
