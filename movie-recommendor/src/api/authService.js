@@ -91,3 +91,15 @@ export const resetPassword = async (email, newPassword) => {
     handleError(error);
   }
 };
+
+export const verifyResetOtp = async (otpData) => {
+  try {
+    console.log("🔍 Calling /register/Verify-account with", otpData);
+    const res = await api.post("/register/Verify-account", otpData, {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (error) { 
+    handleError(error);
+  }
+};

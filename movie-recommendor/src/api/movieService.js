@@ -80,7 +80,6 @@ export const fetchMoviesWithPosters = async (title) => {
   return moviesWithPosters;
 };
 
-// ✅ 4️⃣ Optional - Fetch top rated movies
 export const fetchTopRatedMovies = async () => {
   try {
     const res = await axios.get(`${TMDB_BASE_URL}/movie/top_rated`, {

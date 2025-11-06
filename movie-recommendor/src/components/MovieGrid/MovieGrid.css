@@ -29,9 +29,9 @@
 
 
  .movie-card:hover {
-  transform: scale(1.05); /* Slightly enlarge the card */
-  border-color: #4facfe;  /* Blue border on hover */
-  box-shadow: 0 0 15px rgba(79, 172, 254, 0.5); /* Blue glow */
+  transform: scale(1.05); 
+  border-color: #4facfe; 
+  box-shadow: 0 0 15px rgba(79, 172, 254, 0.5);
 }
 
 

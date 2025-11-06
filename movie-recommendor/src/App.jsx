@@ -1,6 +1,13 @@
 // src/App.jsx
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
+
 import Navbar from "./components/Navbar/Navbar";
 import Login from "./components/Login/Login";
 import Signup from "./components/Signup/Signup";
@@ -12,60 +19,115 @@ import MovieGrid from "./components/MovieGrid/MovieGrid";
 import { fetchMoviesWithPosters } from "./api/movieService";
 import "./App.css";
 
-const App = () => {
-  const [showLogin, setShowLogin] = useState(false);
-  const [showSignup, setShowSignup] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
-
+const AppRoutes = () => {
   const [recommendedMovies, setRecommendedMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTitle, setSearchTitle] = useState("");
   const [heroMovie, setHeroMovie] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const navigate = useNavigate();
 
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem("isAuthenticated")
+  );
+
+  useEffect(() => {
+    const auth = localStorage.getItem("isAuthenticated");
+    if (auth) setIsAuthenticated(true);
+  }, []);
+
+  // ✅ login success
+  const handleLoginSuccess = () => {
+    localStorage.setItem("isAuthenticated", "true");
+    setIsAuthenticated(true);
+    navigate("/", { replace: true });
+  };
+
+  // ✅ logout success
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    setIsAuthenticated(false);
+    navigate("/login", { replace: true });
+  };
+
+  // ✅ handle search
   const handleSearch = async (query) => {
     if (!query.trim()) return;
-
-    console.log("🔍 Searching for:", query);
     setSearchTitle(query);
     setHeroMovie(null);
     setRecommendedMovies([]);
     setLoading(true);
-
     try {
       const results = await fetchMoviesWithPosters(query);
       setRecommendedMovies(results);
-      if (results.length > 0) {
-        setHeroMovie(results[0]);
-      }
+      if (results.length > 0) setHeroMovie(results[0]);
     } catch (err) {
-      console.error("❌ Error fetching recommendations:", err);
+      console.error("❌ Error fetching:", err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Router>
-      <div className="App">
-        <Navbar
-          onLoginClick={() => setShowLogin(true)}
-          onSignupClick={() => setShowSignup(true)}
-          onProfileClick={() => setShowProfile(true)}
-          onSearch={handleSearch}
-        />
+    <>
+      {/* Navbar visible always but changes buttons dynamically */}
+      <Navbar
+        onSearch={handleSearch}
+        onProfileClick={() => setShowProfile(true)}
+        onLogout={handleLogout}
+        isAuthenticated={isAuthenticated}
+      />
 
-        <div className="main-content">
-          {heroMovie && <Hero movie={heroMovie} />}
+      <div className="main-content">
+        {heroMovie && <Hero movie={heroMovie} />}
 
-          <Routes>
-            <Route
-              path="/"
-              element={<Home recommendedMovies={recommendedMovies} loading={loading} />}
-            />
-            <Route path="/top-rated" element={<TopRated />} />
-            <Route
-              path="/recommended"
-              element={
+        <Routes>
+          {/* ---------- Public routes ---------- */}
+          <Route
+            path="/login"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Login onLoginSuccess={handleLoginSuccess} />
+              )
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              isAuthenticated ? <Navigate to="/" replace /> : <Signup />
+            }
+          />
+
+          {/* ---------- Protected routes ---------- */}
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? (
+                <Home
+                  recommendedMovies={recommendedMovies}
+                  loading={loading}
+                />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/top-rated"
+            element={
+              isAuthenticated ? (
+                <TopRated />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/recommended"
+            element={
+              isAuthenticated ? (
                 <div className="recommended-page">
                   {loading ? (
                     <p className="loading">Fetching recommendations...</p>
@@ -82,36 +144,29 @@ const App = () => {
                     </p>
                   )}
                 </div>
-              }
-            />
-          </Routes>
-        </div>
-
-        {showLogin && (
-          <Login
-            onClose={() => setShowLogin(false)}
-            onSignupClick={() => {
-              setShowLogin(false);
-              setShowSignup(true);
-            }}
-            onProfileClick={() => setShowProfile(true)} // ✅ added this
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
           />
-        )}
 
-        {showSignup && (
-          <Signup
-            onClose={() => setShowSignup(false)}
-            onLoginClick={() => {
-              setShowSignup(false);
-              setShowLogin(true);
-            }}
-          />
-        )}
-
-        {showProfile && <Profile onClose={() => setShowProfile(false)} />}
+          {/* fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </div>
-    </Router>
+
+      {/* ✅ Profile modal */}
+      {isAuthenticated && showProfile && (
+        <Profile onClose={() => setShowProfile(false)} onLogout={handleLogout} />
+      )}
+    </>
   );
 };
+
+const App = () => (
+  <BrowserRouter>
+    <AppRoutes />
+  </BrowserRouter>
+);
 
 export default App;

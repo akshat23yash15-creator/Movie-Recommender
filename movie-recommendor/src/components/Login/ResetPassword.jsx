@@ -1,80 +1,139 @@
+// src/components/Login/ResetPassword.jsx
 import React, { useState } from "react";
 import "./Login.css";
-import { resetPassword } from "../../api/authService";
+import { sendResetOtp, verifyAccount, resetPassword, verifyResetOtp } from "../../api/authService";
 
-export default function ResetPassword({ onBack }) {
-  const [resetData, setResetData] = useState({
-    email: "",
-    newPassword: "",
-  });
+const ResetPassword = ({ onBack }) => {
+  const [step, setStep] = useState("email");
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  // 🔹 Handle Reset Password API
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg("");
+
+    try {
+      const res = await sendResetOtp(email);
+      if (res?.success) {
+        alert("✅ OTP sent successfully! Check your email.");
+        setStep("otp");
+      } else {
+        setErrorMsg(res?.message || "Email not found. Please check again.");
+      }
+    } catch (err) {
+      console.error("❌ Error sending OTP:", err);
+      setErrorMsg("Failed to send OTP. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrorMsg("");
+
+    try {
+      const verifyResponse = await verifyResetOtp({ email, otp: Number(otp) });
+
+      if (verifyResponse?.success) {
+        alert("✅ OTP verified successfully!");
+        setStep("reset");
+      } else {
+        setErrorMsg("❌ Invalid or expired OTP.");
+      }
+    } catch (err) {
+      console.error("❌ Verification error:", err);
+      setErrorMsg("Verification failed. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    if (!resetData.email || !resetData.newPassword) {
-      alert("Please fill in both fields.");
-      return;
-    }
-
     setLoading(true);
+    setErrorMsg("");
+
     try {
-      const res = await resetPassword(resetData.email, resetData.newPassword);
-      alert("✅ Password reset successfully!");
-      console.log("Reset Response:", res);
-      setResetData({ email: "", newPassword: "" });
-      onBack(); // go back to login after success
+      const res = await resetPassword(email, newPassword);
+      if (res?.success) {
+        alert("🎉 Password reset successful! You can now log in.");
+        onBack();
+      } else {
+        setErrorMsg(res?.message || "Failed to reset password.");
+      }
     } catch (err) {
-      console.error(err);
-      alert("❌ Failed to reset password. Please check your email.");
+      console.error("❌ Password reset error:", err);
+      setErrorMsg("Failed to reset password. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="login-card">
-      <button className="close-btn" onClick={onBack}>
-        ←
-      </button>
-      <h2 className="modal-title">Reset Password</h2>
-      <p className="modal-subtitle">
-        Enter your registered email and a new password.
-      </p>
+    <div className="reset-modal">
+      <h2>Reset Password</h2>
 
-      <form onSubmit={handleResetPassword} className="login-form">
-        <div className="form-group">
+      {step === "email" && (
+        <form onSubmit={handleSendOtp}>
           <input
             type="email"
-            placeholder="Registered Email"
-            value={resetData.email}
-            onChange={(e) =>
-              setResetData({ ...resetData, email: e.target.value })
-            }
+            placeholder="Enter your registered email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
+          {errorMsg && <p className="error-message">{errorMsg}</p>}
+          <button type="submit" disabled={loading}>
+            {loading ? "Sending OTP..." : "Send OTP"}
+          </button>
+          <p className="back-link" onClick={onBack}>
+            ← Back to Login
+          </p>
+        </form>
+      )}
 
-        <div className="form-group">
+      {step === "otp" && (
+        <form onSubmit={handleVerifyOtp}>
+          <input
+            type="text"
+            placeholder="Enter OTP sent to your email"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            required
+          />
+          {errorMsg && <p className="error-message">{errorMsg}</p>}
+          <button type="submit" disabled={loading}>
+            {loading ? "Verifying..." : "Verify OTP"}
+          </button>
+          <p className="back-link" onClick={() => setStep("email")}>
+            ← Back
+          </p>
+        </form>
+      )}
+
+      {step === "reset" && (
+        <form onSubmit={handleResetPassword}>
           <input
             type="password"
-            placeholder="New Password"
-            value={resetData.newPassword}
-            onChange={(e) =>
-              setResetData({ ...resetData, newPassword: e.target.value })
-            }
+            placeholder="Enter new password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
             required
           />
-        </div>
-
-        <button type="submit" className="login-btn" disabled={loading}>
-          {loading ? "Resetting..." : "Reset Password"}
-        </button>
-      </form>
-
-      <p className="back-link" onClick={onBack}>
-        ← Back to Login
-      </p>
+          {errorMsg && <p className="error-message">{errorMsg}</p>}
+          <button type="submit" disabled={loading}>
+            {loading ? "Resetting..." : "Reset Password"}
+          </button>
+        </form>
+      )}
     </div>
   );
-}
+};
+
+export default ResetPassword;

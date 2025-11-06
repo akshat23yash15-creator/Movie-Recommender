@@ -1,4 +1,3 @@
-// src/components/Profile/Profile.jsx
 import React, { useEffect, useState } from "react";
 import "./Profile.css";
 import { getUserData, logoutUser } from "../../api/authService";
@@ -33,15 +32,18 @@ const Profile = ({ onClose }) => {
   }, []);
 
   const handleLogout = async () => {
-    try {
-      await logoutUser();
-      alert("You have been logged out successfully!");
-      onClose();
-    } catch (err) {
-      console.error("Logout failed:", err);
-      alert("Something went wrong during logout.");
-    }
-  };
+  try {
+    await logoutUser();
+  } catch (err) {
+    console.error("Logout failed:", err);
+  }
+
+  localStorage.removeItem("isAuthenticated");
+  alert("You have been logged out successfully!");
+  onClose();
+  window.location.href = "/login";
+};
+
 
   if (loading) {
     return (
@@ -86,7 +88,6 @@ const Profile = ({ onClose }) => {
           </div>
         </div>
 
-        <button className="logout-btn" onClick={handleLogout}>Log Out</button>
       </div>
     </div>
   );

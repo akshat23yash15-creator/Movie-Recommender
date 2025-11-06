@@ -6,7 +6,7 @@ import "./Navbar.css";
 const TMDB_BASE_URL = import.meta.env.VITE_TMDB_BASE_URL;
 const TMDB_TOKEN = import.meta.env.VITE_TMDB_READ_ACCESS_TOKEN;
 
-const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
+const Navbar = ({ onProfileClick, onSearch, onLogout, isAuthenticated }) => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -53,7 +53,6 @@ const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  
   const handleSearch = (movieTitle = query) => {
     if (!movieTitle.trim()) return;
     onSearch(movieTitle);
@@ -65,10 +64,14 @@ const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
 
   return (
     <nav className={`navbar ${showDropdown ? "search-active" : ""}`}>
-   
-      <div className="logo gradient-text">ROOVIE</div>
+      <div
+        className="logo gradient-text"
+        onClick={() => navigate("/")}
+        style={{ cursor: "pointer" }}
+      >
+        ROOVIE
+      </div>
 
-    
       <div className="search-wrapper" ref={searchRef}>
         <div className="search-box">
           <input
@@ -107,19 +110,46 @@ const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
 
       <div className={`nav-links-container ${showMobileMenu ? "hide" : ""}`}>
         <ul className="nav-links">
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/top-rated">Top Rated</Link></li>
-          <li><Link to="/recommended">Recommended</Link></li>
-          <li onClick={onProfileClick}>Profile</li>
+          <li>
+            <Link to="/">Home</Link>
+          </li>
+          <li>
+            <Link to="/top-rated">Top Rated</Link>
+          </li>
+          <li>
+            <Link to="/recommended">Recommended</Link>
+          </li>
         </ul>
 
         <div className="nav-buttons">
-          <button className="login-btn" onClick={onLoginClick}>Login</button>
-          <button className="signup-btn" onClick={onSignupClick}>Sign Up</button>
+          {isAuthenticated ? (
+            <>
+              <button className="profile-btn" onClick={onProfileClick}>
+                Profile
+              </button>
+              <button className="logout-btn" onClick={onLogout}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="login-btn"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </button>
+              <button
+                className="signup-btn"
+                onClick={() => navigate("/signup")}
+              >
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-  
       {!showDropdown && (
         <div
           className={`hamburger ${showMobileMenu ? "active" : ""}`}
@@ -131,34 +161,69 @@ const Navbar = ({ onLoginClick, onSignupClick, onProfileClick, onSearch }) => {
         </div>
       )}
 
-      
       <div className={`mobile-menu ${showMobileMenu ? "open" : ""}`}>
         <ul className="mobile-links">
-          <li><Link to="/" onClick={() => setShowMobileMenu(false)}>Home</Link></li>
-          <li><Link to="/top-rated" onClick={() => setShowMobileMenu(false)}>Top Rated</Link></li>
-          <li><Link to="/recommended" onClick={() => setShowMobileMenu(false)}>Recommended</Link></li>
-          <li onClick={() => { onProfileClick(); setShowMobileMenu(false); }}>Profile</li>
+          <li>
+            <Link to="/" onClick={() => setShowMobileMenu(false)}>
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link to="/top-rated" onClick={() => setShowMobileMenu(false)}>
+              Top Rated
+            </Link>
+          </li>
+          <li>
+            <Link to="/recommended" onClick={() => setShowMobileMenu(false)}>
+              Recommended
+            </Link>
+          </li>
         </ul>
 
         <div className="mobile-buttons">
-          <button
-            className="login-btn"
-            onClick={() => {
-              onLoginClick();
-              setShowMobileMenu(false);
-            }}
-          >
-            Login
-          </button>
-          <button
-            className="signup-btn"
-            onClick={() => {
-              onSignupClick();
-              setShowMobileMenu(false);
-            }}
-          >
-            Sign Up
-          </button>
+          {isAuthenticated ? (
+            <>
+              <button
+                className="profile-btn"
+                onClick={() => {
+                  onProfileClick();
+                  setShowMobileMenu(false);
+                }}
+              >
+                Profile
+              </button>
+              <button
+                className="logout-btn"
+                onClick={() => {
+                  onLogout();
+                  setShowMobileMenu(false);
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="login-btn"
+                onClick={() => {
+                  navigate("/login");
+                  setShowMobileMenu(false);
+                }}
+              >
+                Login
+              </button>
+              <button
+                className="signup-btn"
+                onClick={() => {
+                  navigate("/signup");
+                  setShowMobileMenu(false);
+                }}
+              >
+                Sign Up
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>
