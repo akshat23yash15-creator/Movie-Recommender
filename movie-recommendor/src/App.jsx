@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
   useNavigate,
+  useLocation,   // ✅ add this
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar/Navbar";
@@ -25,6 +26,7 @@ const AppRoutes = () => {
   const [heroMovie, setHeroMovie] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // ✅ track current route
 
   const [isAuthenticated, setIsAuthenticated] = useState(
     !!localStorage.getItem("isAuthenticated")
@@ -64,14 +66,20 @@ const AppRoutes = () => {
     }
   };
 
+  // ✅ Hide navbar on specific routes
+  const hideNavbarRoutes = ["/signup", "/login"];
+  const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
+
   return (
     <>
-      <Navbar
-        onSearch={handleSearch}
-        onProfileClick={() => setShowProfile(true)}
-        onLogout={handleLogout}
-        isAuthenticated={isAuthenticated}
-      />
+      {shouldShowNavbar && (
+        <Navbar
+          onSearch={handleSearch}
+          onProfileClick={() => setShowProfile(true)}
+          onLogout={handleLogout}
+          isAuthenticated={isAuthenticated}
+        />
+      )}
 
       <div className="main-content">
         {heroMovie && <Hero movie={heroMovie} />}
