@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter,
@@ -36,21 +35,18 @@ const AppRoutes = () => {
     if (auth) setIsAuthenticated(true);
   }, []);
 
-  // ✅ login success
   const handleLoginSuccess = () => {
     localStorage.setItem("isAuthenticated", "true");
     setIsAuthenticated(true);
     navigate("/", { replace: true });
   };
 
-  // ✅ logout success
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
     setIsAuthenticated(false);
     navigate("/login", { replace: true });
   };
 
-  // ✅ handle search
   const handleSearch = async (query) => {
     if (!query.trim()) return;
     setSearchTitle(query);
@@ -70,7 +66,6 @@ const AppRoutes = () => {
 
   return (
     <>
-      {/* Navbar visible always but changes buttons dynamically */}
       <Navbar
         onSearch={handleSearch}
         onProfileClick={() => setShowProfile(true)}
@@ -82,7 +77,6 @@ const AppRoutes = () => {
         {heroMovie && <Hero movie={heroMovie} />}
 
         <Routes>
-          {/* ---------- Public routes ---------- */}
           <Route
             path="/login"
             element={
@@ -100,7 +94,6 @@ const AppRoutes = () => {
             }
           />
 
-          {/* ---------- Protected routes ---------- */}
           <Route
             path="/"
             element={
@@ -150,12 +143,10 @@ const AppRoutes = () => {
             }
           />
 
-          {/* fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
 
-      {/* ✅ Profile modal */}
       {isAuthenticated && showProfile && (
         <Profile onClose={() => setShowProfile(false)} onLogout={handleLogout} />
       )}
